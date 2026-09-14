@@ -1,0 +1,19 @@
+{
+  "name": "agent-zap-open-source",
+  "version": "1.0.0",
+  "description": "Agente open source de IA para WhatsApp com OpenWA ou Meta Cloud API",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --watch --env-file=.env src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "openai": "^6.10.0"
+  },
+  "license": "MIT"
+}

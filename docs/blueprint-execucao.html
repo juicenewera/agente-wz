@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Zap — blueprint de execução</title>
+<style>
+  :root { color-scheme: light; --bg:#f7f8fc; --ink:#192033; --muted:#65708a; --line:#7b8499; --box:#ffffff; --stroke:#7180bf; --accent:#4c5fc0; }
+  * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.35 Inter,Segoe UI,Arial,sans-serif; }
+  header { padding:18px 28px 8px; } h1 { margin:0; font-size:22px; } p { margin:5px 0 0; color:var(--muted); }
+  main { padding:8px 22px 24px; overflow:auto; } svg { display:block; width:min(100%,1240px); min-width:1120px; height:auto; margin:auto; background:var(--box); border:1px solid #dde1ef; border-radius:12px; box-shadow:0 8px 25px #26376512; }
+  .box { fill:var(--box); stroke:var(--stroke); stroke-width:1.4; rx:4; } .box.sec { fill:#fff9fb; stroke:#ba6b9a; } .box.data { fill:#f7fbff; stroke:#5b91b7; } .box.auto { fill:#fbfaff; stroke:#8b72be; }
+  .title { font-weight:700; font-size:12px; fill:var(--ink); } .sub { font-size:10px; fill:var(--muted); } .lane { font-weight:700; font-size:12px; fill:#7a83a0; letter-spacing:.08em; text-transform:uppercase; }
+  .edge { fill:none; stroke:var(--line); stroke-width:1.35; marker-end:url(#arrow); } .edge.dash { stroke-dasharray:5 4; } .label { font-size:10px; fill:#5f6880; }
+  .trace-on .edge { stroke-dasharray:8 7; animation:flow 1.15s linear infinite; }
+  .trace-on .edge.dash { stroke-dasharray:5 5; animation-duration:.9s; }
+  @keyframes flow { to { stroke-dashoffset:-30; } }
+  .toolbar { position:fixed; right:22px; top:16px; z-index:2; } button { border:1px solid #8b96c6; border-radius:7px; background:var(--box); color:var(--ink); padding:7px 11px; cursor:pointer; font:inherit; box-shadow:0 2px 8px #26376518; } button:hover { border-color:var(--accent); }
+  .legend { display:flex; gap:18px; justify-content:center; color:var(--muted); margin:10px auto 0; font-size:12px; } .dot { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px; border:1px solid var(--stroke); background:white; } .dot.sec{border-color:#ba6b9a;background:#fff9fb}.dot.data{border-color:#5b91b7;background:#f7fbff}.dot.auto{border-color:#8b72be;background:#fbfaff}
+  @media (prefers-color-scheme: dark) { :root { color-scheme:dark; --bg:#111522; --ink:#edf0fa; --muted:#aab2c8; --line:#8791aa; --box:#1a2030; --stroke:#8997e1; --accent:#9aa8ff; } svg{border-color:#30384f;box-shadow:none}.box.sec{fill:#291e2a}.box.data{fill:#172733}.box.auto{fill:#241c31}.title{fill:var(--ink)}.sub,.label{fill:var(--muted)} }
+</style>
+</head>
+<body>
+<header><h1>Agent Zap — blueprint de execução completo</h1><p>Fluxo principal no topo; timers, automações, CRM e persistência abaixo.</p></header>
+<div class="toolbar"><button id="trace" type="button" aria-pressed="true">⏸ Pausar animação</button></div>
+<main>
+<svg id="diagram" class="trace-on" viewBox="0 0 1240 650" role="img" aria-label="Arquitetura horizontal do Agent Zap com animação de fluxo">
+ <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7b8499"/></marker></defs>
+ <text x="28" y="27" class="lane">CAMINHO PRINCIPAL — MENSAGEM AO VIVO</text>
+ <rect x="28" y="42" width="134" height="52" class="box"/><text x="95" y="65" text-anchor="middle" class="title">Lead no WhatsApp</text><text x="95" y="82" text-anchor="middle" class="sub">texto · áudio · imagem</text>
+ <rect x="198" y="42" width="134" height="52" class="box"/><text x="265" y="65" text-anchor="middle" class="title">OpenWA</text><text x="265" y="82" text-anchor="middle" class="sub">WhatsApp Web · QR</text>
+ <rect x="368" y="42" width="150" height="52" class="box"/><text x="443" y="65" text-anchor="middle" class="title">Express /webhook</text><text x="443" y="82" text-anchor="middle" class="sub">src/server.js</text>
+ <rect x="554" y="42" width="152" height="52" class="box sec"/><text x="630" y="65" text-anchor="middle" class="title">Gates + handoff</text><text x="630" y="82" text-anchor="middle" class="sub">HMAC · identidade · dedup</text>
+ <rect x="742" y="42" width="152" height="52" class="box auto"/><text x="818" y="65" text-anchor="middle" class="title">Fila + debounce</text><text x="818" y="82" text-anchor="middle" class="sub">uma geração por contato</text>
+ <rect x="930" y="42" width="158" height="52" class="box"/><text x="1009" y="65" text-anchor="middle" class="title">atenderLead</text><text x="1009" y="82" text-anchor="middle" class="sub">orquestra o turno</text>
+ <rect x="1120" y="42" width="98" height="52" class="box data"/><text x="1169" y="65" text-anchor="middle" class="title">RAG</text><text x="1169" y="82" text-anchor="middle" class="sub">Supabase</text>
+ <path class="edge" d="M162 68H198"/><path class="edge" d="M332 68H368"/><path class="edge" d="M518 68H554"/><path class="edge" d="M706 68H742"/><path class="edge" d="M894 68H930"/><path class="edge" d="M1088 68H1120"/>
+ <text x="350" y="57" class="label">webhook</text><text x="716" y="57" class="label">aceita</text><text x="900" y="57" class="label">turno</text>
+
+ <text x="28" y="145" class="lane">CONTEXTO, IA E DECISÕES</text>
+ <rect x="780" y="160" width="158" height="52" class="box sec"/><text x="859" y="183" text-anchor="middle" class="title">Guardrails + regras</text><text x="859" y="200" text-anchor="middle" class="sub">anti-injection · funil · orçamento</text>
+ <rect x="1000" y="160" width="158" height="52" class="box data"/><text x="1079" y="183" text-anchor="middle" class="title">Modelo via API</text><text x="1079" y="200" text-anchor="middle" class="sub">OpenAI-compatible</text>
+ <rect x="1000" y="250" width="158" height="52" class="box"/><text x="1079" y="273" text-anchor="middle" class="title">Envio pelo OpenWA</text><text x="1079" y="290" text-anchor="middle" class="sub">texto · mídia · áudio</text>
+ <path class="edge" d="M1009 94V134H859V160"/><path class="edge" d="M938 186H1000"/><path class="edge" d="M1079 212V250"/>
+ <text x="950" y="151" class="label">prompt protegido</text><text x="1088" y="239" class="label">resposta</text>
+
+ <text x="28" y="355" class="lane">TIMERS E AUTOMAÇÕES ASSÍNCRONAS</text>
+ <rect x="75" y="380" width="155" height="52" class="box auto"/><text x="152" y="403" text-anchor="middle" class="title">Timers no processo</text><text x="152" y="420" text-anchor="middle" class="sub">scheduler · intervalos</text>
+ <rect x="285" y="380" width="145" height="52" class="box auto"/><text x="357" y="403" text-anchor="middle" class="title">Leads do site</text><text x="357" y="420" text-anchor="middle" class="sub">varredura Kommo</text>
+ <rect x="480" y="380" width="160" height="52" class="box auto"/><text x="560" y="403" text-anchor="middle" class="title">Retomadas e resgates</text><text x="560" y="420" text-anchor="middle" class="sub">lead sem resposta</text>
+ <rect x="690" y="380" width="145" height="52" class="box auto"/><text x="762" y="403" text-anchor="middle" class="title">Follow-ups</text><text x="762" y="420" text-anchor="middle" class="sub">cadência programada</text>
+ <rect x="885" y="380" width="158" height="52" class="box auto"/><text x="964" y="403" text-anchor="middle" class="title">Reconciliações</text><text x="964" y="420" text-anchor="middle" class="sub">fila · identidade · CRM</text>
+ <path class="edge dash" d="M230 406H285"/><path class="edge dash" d="M230 415H480"/><path class="edge dash" d="M230 424H690"/><path class="edge dash" d="M230 432H885"/>
+ <path class="edge dash" d="M357 380V335H1009V94"/><path class="edge dash" d="M560 380V335H1009V94"/><path class="edge dash" d="M762 380V302H1079"/>
+ <text x="245" y="398" class="label">ciclos</text><text x="835" y="327" class="label">mensagem programada</text>
+
+ <text x="28" y="495" class="lane">CRM, PERSISTÊNCIA E MONITORAMENTO</text>
+ <rect x="315" y="520" width="150" height="52" class="box data"/><text x="390" y="543" text-anchor="middle" class="title">Kommo</text><text x="390" y="560" text-anchor="middle" class="sub">lead · etapa · vendedor</text>
+ <rect x="540" y="520" width="175" height="52" class="box data"/><text x="627" y="543" text-anchor="middle" class="title">Supabase / Postgres</text><text x="627" y="560" text-anchor="middle" class="sub">histórico · fila · RAG</text>
+ <rect x="805" y="520" width="180" height="52" class="box"/><text x="895" y="543" text-anchor="middle" class="title">Logs e monitoramento</text><text x="895" y="560" text-anchor="middle" class="sub">eventos · alertas · saúde</text>
+ <path class="edge dash" d="M1009 94V475H390V520"/><path class="edge dash" d="M1009 94V490H627V520"/><path class="edge dash" d="M964 432V475H390V520"/><path class="edge dash" d="M964 432V490H627V520"/><path class="edge dash" d="M1009 94V505H895V520"/>
+ <text x="510" y="484" class="label">estado e histórico</text><text x="815" y="484" class="label">reconciliar</text>
+</svg>
+<div class="legend"><span><i class="dot"></i>runtime</span><span><i class="dot sec"></i>segurança/regras</span><span><i class="dot auto"></i>automação</span><span><i class="dot data"></i>dados/integrações</span></div>
+</main>
+<script>
+  const diagram = document.getElementById('diagram');
+  const trace = document.getElementById('trace');
+  trace.addEventListener('click', () => {
+    const active = diagram.classList.toggle('trace-on');
+    trace.setAttribute('aria-pressed', String(active));
+    trace.textContent = active ? '⏸ Pausar animação' : '▶ Retomar animação';
+  });
+</script>
+</body></html>

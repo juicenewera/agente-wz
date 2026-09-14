@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Agent Zap — blueprint da arquitetura",
+    "output": "blueprint-arquitetura.html",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "entrada", "label": "Entrada e segurança", "focus": ["lead", "openwa", "meta", "server", "security"], "note": "A mensagem entra por um adapter e passa pela validação de webhook e pelos guardrails antes da IA." },
+      { "id": "resposta", "label": "Geração e entrega", "focus": ["server", "security", "agent", "ai", "store", "openwa", "meta"], "note": "O agente monta o contexto, chama um endpoint OpenAI-compatible e devolve texto pelo adapter original." },
+      { "id": "operacao", "label": "Operação e observabilidade", "focus": ["server", "store", "logger", "agent"], "note": "O servidor mantém histórico/deduplicação e registra o caminho operacional." }
+    ]
+  },
+  "components": [
+    { "id": "lead", "type": "external", "label": "Usuário WhatsApp", "sublabel": "mensagem de texto", "pos": [40, 310], "size": [145, 64] },
+    { "id": "openwa", "type": "cloud", "label": "OpenWA adapter", "sublabel": "WhatsApp Web · não oficial", "pos": [260, 190], "size": [170, 70], "tag": "opcional" },
+    { "id": "meta", "type": "external", "label": "Meta Cloud API", "sublabel": "WhatsApp Business · oficial", "pos": [260, 420], "size": [170, 70], "tag": "opcional" },
+    { "id": "server", "type": "backend", "label": "HTTP server", "sublabel": "Node.js 22 · Express 5", "pos": [510, 310], "size": [170, 70], "tag": "src/server.js" },
+    { "id": "security", "type": "security", "label": "Webhook + guardrails", "sublabel": "HMAC · dedup · anti-injection", "pos": [750, 180], "size": [180, 70] },
+    { "id": "agent", "type": "backend", "label": "Agente de IA", "sublabel": "histórico + prompt + resposta", "pos": [750, 390], "size": [180, 70], "tag": "src/agent.js" },
+    { "id": "store", "type": "database", "label": "Store em memória", "sublabel": "histórico e IDs processados", "pos": [1000, 500], "size": [170, 70], "tag": "volátil" },
+    { "id": "ai", "type": "external", "label": "Provedor de IA", "sublabel": "OpenAI SDK · API compatible", "pos": [1000, 300], "size": [170, 70] },
+    { "id": "logger", "type": "backend", "label": "Logger", "sublabel": "eventos e diagnóstico", "pos": [1000, 120], "size": [170, 70] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Runtime do Agent Zap", "wraps": ["server", "security", "agent", "store", "logger"] },
+    { "kind": "security-group", "label": "Webhooks HTTPS + assinatura", "wraps": ["server", "security"] }
+  ],
+  "connections": [
+    { "id": "lead-openwa", "from": "lead", "to": "openwa", "label": "WhatsApp Web", "variant": "emphasis" },
+    { "id": "lead-meta", "from": "lead", "to": "meta", "label": "WhatsApp Business", "variant": "emphasis" },
+    { "id": "openwa-webhook", "from": "openwa", "to": "server", "label": "POST webhook", "fromSide": "right", "toSide": "top", "labelDx": -92 },
+    { "id": "meta-webhook", "from": "meta", "to": "server", "label": "POST webhook", "fromSide": "right", "toSide": "bottom" },
+    { "id": "server-security", "from": "server", "to": "security", "label": "validar + deduplicar", "variant": "security" },
+    { "id": "security-agent", "from": "security", "to": "agent", "label": "entrada confiável", "variant": "security", "labelDy": 28 },
+    { "id": "agent-ai", "from": "agent", "to": "ai", "label": "chat.completions", "variant": "emphasis", "labelDy": -72 },
+    { "id": "agent-store", "from": "agent", "to": "store", "label": "histórico / IDs", "variant": "dashed" },
+    { "id": "server-log", "from": "server", "to": "logger", "label": "eventos", "variant": "dashed", "fromSide": "top", "toSide": "top", "via": [[595, 100], [1085, 100]] },
+    { "id": "server-openwa", "from": "server", "to": "openwa", "label": "send-text", "variant": "dashed", "fromSide": "left", "toSide": "bottom" },
+    { "id": "server-meta", "from": "server", "to": "meta", "label": "Graph API", "variant": "dashed", "fromSide": "left", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Tecnologias", "items": ["Node.js 22", "Express 5", "OpenAI SDK 6", "JavaScript ESM"] },
+    { "dot": "emerald", "title": "Integrações", "items": ["OpenWA via WhatsApp Web", "Meta Cloud API oficial", "Qualquer endpoint OpenAI-compatible"] },
+    { "dot": "rose", "title": "Segurança e limites", "items": ["HMAC opcional nos webhooks", "Deduplicação e guardrails anti-injection", "Store padrão volátil; persistência é necessária em produção"] }
+  ]
+}
