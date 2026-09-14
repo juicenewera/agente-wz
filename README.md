@@ -75,6 +75,7 @@ Em produção, publique apenas a rota de webhook por HTTPS e mantenha qualquer O
 | `docs/blueprint-arquitetura.html` | Diagrama arquitetural interativo validado |
 | `docs/blueprint-execucao.html` | Fluxograma horizontal completo no formato operacional |
 | `docs/BLUEPRINT-EXECUCAO.md` | Explicação passo a passo de cada etapa do fluxograma |
+| `docs/ROTEIRO-APRESENTACAO-E-CONSTRUCAO.md` | Roteiro para explicar o sistema e construí-lo do zero |
 
 ## Limites intencionais
 
