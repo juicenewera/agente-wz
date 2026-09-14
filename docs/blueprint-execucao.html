@@ -24,7 +24,7 @@
 <header><h1>Agent Zap — blueprint de execução completo</h1><p>Fluxo principal no topo; timers, automações, CRM e persistência abaixo.</p></header>
 <div class="toolbar"><button id="trace" type="button" aria-pressed="true">⏸ Pausar animação</button></div>
 <main>
-<svg id="diagram" class="trace-on" viewBox="0 0 1240 650" role="img" aria-label="Arquitetura horizontal do Agent Zap com animação de fluxo">
+<svg id="diagram" class="trace-on" viewBox="0 0 1240 805" role="img" aria-label="Arquitetura horizontal do Agent Zap com animação de fluxo e infraestrutura Docker na VPS">
  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7b8499"/></marker></defs>
  <text x="28" y="27" class="lane">CAMINHO PRINCIPAL — MENSAGEM AO VIVO</text>
  <rect x="28" y="42" width="134" height="52" class="box"/><text x="95" y="65" text-anchor="middle" class="title">Lead no WhatsApp</text><text x="95" y="82" text-anchor="middle" class="sub">texto · áudio · imagem</text>
@@ -60,6 +60,15 @@
  <rect x="805" y="520" width="180" height="52" class="box"/><text x="895" y="543" text-anchor="middle" class="title">Logs e monitoramento</text><text x="895" y="560" text-anchor="middle" class="sub">eventos · alertas · saúde</text>
  <path class="edge dash" d="M1009 94V475H390V520"/><path class="edge dash" d="M1009 94V490H627V520"/><path class="edge dash" d="M964 432V475H390V520"/><path class="edge dash" d="M964 432V490H627V520"/><path class="edge dash" d="M1009 94V505H895V520"/>
  <text x="510" y="484" class="label">estado e histórico</text><text x="815" y="484" class="label">reconciliar</text>
+ <text x="28" y="635" class="lane">INFRAESTRUTURA NA VPS - CONTAINERS E REDE</text>
+ <rect x="55" y="660" width="180" height="58" class="box data"/><text x="145" y="684" text-anchor="middle" class="title">VPS Linux</text><text x="145" y="702" text-anchor="middle" class="sub">IP publico · HTTPS · firewall</text>
+ <rect x="285" y="660" width="180" height="58" class="box auto"/><text x="375" y="684" text-anchor="middle" class="title">Docker Compose</text><text x="375" y="702" text-anchor="middle" class="sub">rede interna · volumes</text>
+ <rect x="515" y="660" width="190" height="58" class="box"/><text x="610" y="684" text-anchor="middle" class="title">Container OpenWA</text><text x="610" y="702" text-anchor="middle" class="sub">sessao · QR · webhook</text>
+ <rect x="755" y="660" width="190" height="58" class="box"/><text x="850" y="684" text-anchor="middle" class="title">Container Agent Zap</text><text x="850" y="702" text-anchor="middle" class="sub">Express · IA · adapters</text>
+ <rect x="995" y="660" width="180" height="58" class="box data"/><text x="1085" y="684" text-anchor="middle" class="title">Volumes / servicos</text><text x="1085" y="702" text-anchor="middle" class="sub">sessao · logs · banco</text>
+ <path class="edge dash" d="M235 689H285"/><path class="edge dash" d="M465 689H515"/><path class="edge dash" d="M705 689H755"/><path class="edge dash" d="M945 689H995"/>
+ <path class="edge dash" d="M265 94V625H610V660"/><path class="edge dash" d="M443 94V610H850V660"/>
+ <text x="474" y="650" class="label">rede Docker</text><text x="710" y="650" class="label">POST /webhooks/openwa</text>
 </svg>
 <div class="legend"><span><i class="dot"></i>runtime</span><span><i class="dot sec"></i>segurança/regras</span><span><i class="dot auto"></i>automação</span><span><i class="dot data"></i>dados/integrações</span></div>
 </main>

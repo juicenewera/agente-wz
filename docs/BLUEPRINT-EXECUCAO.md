@@ -56,6 +56,34 @@ O restante da aplicação não precisa conhecer os formatos específicos. Cada p
 { id, from, text, name, timestamp }
 ```
 
+#### Como o OpenWA funciona dentro da VPS
+
+Na instalação com Docker, o OpenWA é um serviço separado, normalmente executado em um container na VPS:
+
+```text
+VPS com IP público e HTTPS
+  └─ Docker Compose
+      ├─ container OpenWA
+      │    └─ sessão WhatsApp Web + QR + chamadas ao WhatsApp
+      └─ container Agent Zap
+           └─ Express /webhooks/openwa + agente + envio
+```
+
+O ciclo real é:
+
+1. O container OpenWA inicia e cria ou restaura uma sessão.
+2. Se a sessão não estiver autenticada, o OpenWA disponibiliza um QR code.
+3. O operador lê o QR no celular; a sessão fica armazenada no volume do container.
+4. O WhatsApp Web mantém a sessão conectada dentro do OpenWA.
+5. Quando o cliente envia uma mensagem, o OpenWA recebe o evento e faz um `POST` para `http://agent-zap:PORT/webhooks/openwa` na rede Docker (ou para a URL HTTPS pública, conforme a topologia).
+6. O Agent Zap valida `X-OpenWA-Signature`, normaliza o evento e processa a mensagem.
+7. Depois de gerar a resposta, o Agent Zap chama `/api/sessions/{session}/messages/send-text` no OpenWA.
+8. O OpenWA converte essa chamada em uma ação do WhatsApp Web e o cliente recebe a mensagem.
+
+O volume é importante: sem ele, recriar o container pode apagar a sessão e exigir um novo QR code. O OpenWA deve ficar protegido por rede privada, autenticação e firewall; normalmente apenas o endpoint do Agent Zap fica público atrás de HTTPS.
+
+O Docker não muda o protocolo do WhatsApp. Ele apenas empacota, isola e conecta os processos. A sessão continua sendo uma sessão do WhatsApp Web controlada pelo OpenWA.
+
 ### 3.3 Express `/webhook`
 
 O Express recebe:
@@ -217,4 +245,3 @@ Esses blocos não devem ser confundidos com uma implementação presente em `src
 ## 7. Limites e responsabilidade operacional
 
 O blueprint separa claramente o caminho síncrono do webhook dos trabalhos assíncronos. O webhook deve ser curto, autenticado e idempotente. Busca RAG, CRM, follow-up, reconciliação e tarefas demoradas devem usar workers e armazenamento durável quando o sistema for levado para produção.
-
